@@ -36,7 +36,8 @@
     
     <canvas id="myChart"></canvas>
     
-    <script type="text/javascript" src="./data/us-states.js"></script>
+    <script type="text/javascript" src="./us-states.js"></script>
+    <script type="text/javascript" src="./fips.js"></script>
     <script type="text/javascript">
       function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -160,10 +161,10 @@
       let chartData = {}
     	let geojson = d3.json(url).then( data => {
     
-    		for (let item of data) {
-            console.log(
-    				//myData[item.FIPS] = item.COUNT 
-            //chartData[item.STATE] = item.COUNT
+    		for (const fips in data) {
+            console.log(fips, data[fips])
+    				myData[fips] = data[fips]
+            chartData[FIPS[fips]] = data[fips]
     		}
     
     		for (let state of statesData.features) {

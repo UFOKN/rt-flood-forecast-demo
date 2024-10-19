@@ -154,8 +154,9 @@
     
     	let max_impacts = 1000;
     	let grades = []
-    	/* global statesData */
-      let datefile = '2024101317'
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const datefile = urlParams.get('date');
       let url = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=state&date='+datefile)
     	let myData = {}
       let chartData = {}
@@ -169,7 +170,7 @@
             if (FIPS[state] != undefined) {
               chartData[FIPS[state]] = data[fips]
             }
-    		}
+        }
         console.log(myData)
         console.log(chartData)
     

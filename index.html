@@ -163,12 +163,14 @@
     
     		for (const fips in data) {
     				myData[fips] = data[fips]
-            if (FIPS[fips] != undefined) {
-              chartData[FIPS[fips]] = data[fips]
+            var state = fips + "000"
+            console.log(state)
+            if (FIPS[state] != undefined) {
+              chartData[FIPS[state]] = data[fips]
             }
-          console.log(myData)
-          console.log(chartData)
     		}
+        console.log(myData)
+        console.log(chartData)
     
     		for (let state of statesData.features) {
     			if (undefined != myData[state.id]){

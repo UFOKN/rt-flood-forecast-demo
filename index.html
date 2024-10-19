@@ -160,7 +160,8 @@
     	let myData = {}
       let chartData = {}
     	let geojson = d3.json(url).then( data => {
-    
+
+        console.log(data)
     		for (const fips in data) {
     				myData[fips] = data[fips]
             var state = fips + "000"

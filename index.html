@@ -41,18 +41,51 @@
       function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
       }
+      function getFileFromDate(date, hour) {
+        let year = JSON.stringify(date.getYear()+1900)
+        let month = date.getMonth()+1
+        if (month < 10) {
+          month = "0" + JSON.stringify(month)
+        }
+        else {
+          month = JSON.stringify(month)
+        }
+        let day = date.getDate()
+        if (day < 10) {
+          day = "0" + JSON.stringify(day)
+        }
+        else {
+          day = JSON.stringify(day)
+        }
+        let hour_string = (typeof hour == "string") ? hour : JSON.stringify(hour);
+        if (1 == hour_string.length) {
+          hour_string = "0" + hour_string;
+        }
+        return year + month + day + hour_string;
+      }
+      function getHourFromFile(datefile) {
+        return datefile.substring(8,10)
+      }
+      function getDateFromFile(datefile) {
+        return {
+          'year': datefile.substring(0,4),
+          'month': datefile.substring(4,6) - 1,
+          'day': datefile.substring(6,8),
+          'hour': getHourFromFile(datefile),
+        }
+      }
+      function getDateObjFromFile(datefile) {
+        let parts = getDateFromFile(datefile)
+        return new Date(parts['year'], parts['month'], parts['day']);  
+      }
+
       function formatDateFromFile(datefile) {
 
-        let year = datefile.substring(0,4)
-        let month = datefile.substring(4,6)
-        let day = datefile.substring(6,8)
-        let hour = datefile.substring(8,10)
-
-        console.log(datefile, year, month, day, hour)
-
-        // Create a Date object using the provided year and month
-        // Note: JavaScript months are 0-indexed, so we subtract 1 from the given month
-        const date = new Date(year, month - 1, day); 
+        const date = getDateObjFromFile(datefile); 
+        const hour =  getHourFromFile(datefile)
+        const month = date.getMonth() + 1
+        const year = date.getYear() + 1900
+        const day = date.getDate()
 
         // Get the month name from the Date object
         const monthName = date.toLocaleString('default', { month: 'long' });
@@ -110,6 +143,33 @@
           }
         });
       }
+
+      function getPreviousDay(date, hour) {
+        let prev = new Date(date.getTime());
+        prev.setDate(date.getDate() - 1);
+        return getFileFromDate(prev, hour)
+      }
+      function getPreviousHour(date, hour) {
+        if (hour == "00") {
+          return getPreviousDay(date, 23)
+        }
+        return getFileFromDate(date, parseInt(hour)-1)
+      }
+      function getNextDay(date, hour) {
+        let next = new Date(date.getTime());
+        next.setDate(date.getDate() + 1);
+        return getFileFromDate(next, hour)
+      }
+      function getNextHour(date, hour) {
+        if (hour == "23") {
+          return getNextDay(date, "00")
+        }
+        return getFileFromDate(date, parseInt(hour)+1)
+      }
+      function getLink(d, text) {
+        let url = location.protocol + '//' + location.host + location.pathname + '?date=' + d
+        return `<a href="${url}">${text}</a>`;
+      }
     </script>
     <script type="text/javascript">
     
@@ -134,8 +194,22 @@
     	};
     
     	info.update = function (props, title) {
-        
-    		const contents = props ? `<b>${props.name}</b><br />${numberWithCommas(props.count)} impacts` : 'Hover over a state';
+        let counties = ''
+        if (props && props.counties != undefined && props.counties != '') {
+          counties = props.counties.join('')
+        }
+
+        const dateobj = getDateObjFromFile(datefile)
+        const hour =  getHourFromFile(datefile)
+
+        const prevday = getPreviousDay(dateobj, hour)
+        const prevhour = getPreviousHour(dateobj, hour)
+        const prev = getLink(prevday, '<< day') + " " + getLink(prevhour, '< hour')
+        const nextday = getNextDay(dateobj, hour)
+        const nexthour = getNextHour(dateobj, hour)
+        const next = getLink(nexthour, ' hour >') + " " + getLink(nextday, ' day >>')
+        const navigation = prev + " || " + next
+    		const contents = props ? `<b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Hover over a state<br/><br/>' + navigation;
     		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
     	};
     
@@ -196,14 +270,14 @@
         'title': 'CONUS Impacts - ' + DATE_LABEL
       }
 
-      let url = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=state&date='+datefile)
+      let states = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=state&date='+datefile)
+      let counties = {}
     	let myData = {}
       let chartData = {}
 
-      console.log(url)
-      const myRequest = new Request(url);
+      const statesReq = new Request(states);
 
-      let geojson = fetch(myRequest)
+      let geojson = fetch(statesReq)
         .then((response) => response.json())
         .then((data) => {
           sorted = sortObjectByValues(data)
@@ -217,10 +291,12 @@
               chartData[FIPS[state]] = data[fips]
             }
           }
-       
+
           //console.log('map: ', myData)
           //console.log('chart: ', chartData)
-      
+
+          drawChart(chartData, DATE_LABEL)
+
           for (let state of statesData.features) {
             if (undefined != myData[state.id]){
               state.properties['count'] = myData[state.id];
@@ -229,21 +305,60 @@
               state.properties['count'] = 0;
             }
           }
+
           const average = array => array.reduce((a, b) => a + b) / array.length;
           mean = average(Object.values(myData))
           rounded_mean = Math.round(mean/1000)*1000
           doubled = rounded_mean * 2
           increment = Math.round(doubled / 8)
           setLegend(increment)
-      
-          geojson = L.geoJson(statesData, {
-            style,
-            onEachFeature
-          }).addTo(map);
-      
-          drawChart(chartData, DATE_LABEL)
-      
-          return geojson;		
+
+          // Get Counties
+          const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=county&date='+datefile);
+          fetch(countyReq)
+            .then((response) => response.json())
+            .then((data) => { 
+              sorted = sortObjectByValues(data)
+              for (const idx in sorted) {
+                fips = sorted[idx]
+                state = JSON.stringify(fips.substring(0, 2))
+                if (counties[state] == undefined) {
+                  counties[state] = []
+                }
+                counties[state].push({'fips': fips, 'label': FIPS[fips] + ': ' + numberWithCommas(data[fips])})
+              }
+
+              for (let state of statesData.features) {
+                let state_id = JSON.stringify(state.id)
+                if (undefined != counties[state_id]){
+                  state.properties['counties'] = []
+                  for (let county of counties[state_id]) {
+                    state.properties['counties'].push(county.label + "<br/>") 
+                  }
+                }
+                else {
+                  state.properties['counties'] = '';
+                }
+              }
+              
+              geojson = L.geoJson(statesData, {
+                style,
+                onEachFeature
+              }).addTo(map);
+
+              return geojson;	
+            })
+            .catch((error) => {
+              console.log(error)
+
+              // still setup the geojson from the states
+              geojson = L.geoJson(statesData, {
+                style,
+                onEachFeature
+              }).addTo(map);
+
+              return geojson;	
+            });
     	})
     
     	function resetHighlight(e) {

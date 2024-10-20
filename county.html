@@ -179,7 +179,8 @@
       const DATE_LABEL = formatDateFromFile(datefile)
       const scope = urlParams.get('scope');
 
-    	const map = L.map('map').setView([37.8, -96], 4);
+    	let centroid = [37.8, -96]
+      let init_zoom = 4
 
       let state = undefined;
       if (undefined != scope) {
@@ -206,11 +207,16 @@
                   });
               }
             });
-            state.addTo(map);
-            // focus on the state
-            map.fitBounds(state.getBounds());
+            centroid = state.getBounds().getCenter()
+            init_zoom = 6;
           }
         });
+      }
+
+      //focus the map
+      const map = L.map('map').setView(centroid, init_zoom)
+      if (undefined != state) {
+        state.addTo(map);
       }
     
     	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -183,10 +183,10 @@
 
       const PREV_DAY = getPreviousDay(DATEOBJ, HOUR)
       const PREV_HOUR = getPreviousHour(DATEOBJ, HOUR)
-      const PREV = getLink(PREV_DAY, '<< day') + " " + getLink(PREV_HOUR, '< hour')
+      const PREV = getLink(PREV_DAY, scope, '<< day') + " " + getLink(PREV_HOUR, scope, '< hour')
       const NEXT_DAY = getNextDay(DATEOBJ, HOUR)
       const NEXT_HOUR = getNextHour(DATEOBJ, HOUR)
-      const NEXT = getLink(NEXT_HOUR, ' hour >') + " " + getLink(NEXT_DAY, ' day >>')
+      const NEXT = getLink(NEXT_HOUR, scope, ' hour >') + " " + getLink(NEXT_DAY, scope, ' day >>')
       const NAVIGATION = PREV + " || " + NEXT
 
       const scope = urlParams.get('scope');
@@ -251,7 +251,7 @@
           counties = props.counties.join('')
         }
 
-        const back_link = 'index.html?date='+ datefile
+        const back_link = '&laquo;<a href="index.html?date='+ datefile + '">back to CONUS</a>';
     		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}<br /><br />${back_link}` : '${NAVIGATION}<br /><br />Hover over a county<br/><br/>' + back_link;
     		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
     	};

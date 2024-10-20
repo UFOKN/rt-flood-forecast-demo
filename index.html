@@ -175,8 +175,19 @@
     
       const urlParams = new URLSearchParams(window.location.search);
       const datefile = urlParams.get('date');
+      
       const DATE_LABEL = formatDateFromFile(datefile)
+      const DATEOBJ = getDateObjFromFile(datefile)
+      const HOUR =  getHourFromFile(datefile)
 
+      const PREV_DAY = getPreviousDay(DATEOBJ, HOUR)
+      const PREV_HOUR = getPreviousHour(DATEOBJ, HOUR)
+      const PREV = getLink(PREV_DAY, '<< day') + " " + getLink(PREV_HOUR, '< hour')
+      const NEXT_DAY = getNextDay(DATEOBJ, HOUR)
+      const NEXT_HOUR = getNextHour(DATEOBJ, HOUR)
+      const NEXT = getLink(NEXT_HOUR, ' hour >') + " " + getLink(NEXT_DAY, ' day >>')
+      const NAVIGATION = PREV + " || " + NEXT
+      
     	const map = L.map('map').setView([37.8, -96], 4);
     
     	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -198,18 +209,8 @@
         if (props && props.counties != undefined && props.counties != '') {
           counties = props.counties.join('')
         }
-
-        const dateobj = getDateObjFromFile(datefile)
-        const hour =  getHourFromFile(datefile)
-
-        const prevday = getPreviousDay(dateobj, hour)
-        const prevhour = getPreviousHour(dateobj, hour)
-        const prev = getLink(prevday, '<< day') + " " + getLink(prevhour, '< hour')
-        const nextday = getNextDay(dateobj, hour)
-        const nexthour = getNextHour(dateobj, hour)
-        const next = getLink(nexthour, ' hour >') + " " + getLink(nextday, ' day >>')
-        const navigation = prev + " || " + next
-    		const contents = props ? `<b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Hover over a state<br/><br/>' + navigation;
+        
+    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Hover over a state<br /><br />' + NAVIGATION;
     		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
     	};
     
@@ -325,7 +326,8 @@
                 if (counties[state] == undefined) {
                   counties[state] = []
                 }
-                counties[state].push({'fips': fips, 'label': FIPS[fips] + ': ' + numberWithCommas(data[fips])})
+                let county_link = '<a href="county.html?date='+datefile+'&scope='+fips+'">' + FIPS[fips] + '</a>'
+                counties[state].push({'fips': fips, 'label': county_link + ': ' + numberWithCommas(data[fips])})
               }
 
               for (let state of statesData.features) {
@@ -367,13 +369,14 @@
     	}
     
     	function zoomToFeature(e) {
+        highlightFeature(e)
     		map.fitBounds(e.target.getBounds());
     	}
     
     	function onEachFeature(feature, layer) {
     		layer.on({
-    			mouseover: highlightFeature,
-    			mouseout: resetHighlight,
+    			//mouseover: highlightFeature,
+    			//mouseout: resetHighlight,
     			click: zoomToFeature
     		});
     	}

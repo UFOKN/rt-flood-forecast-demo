@@ -180,6 +180,38 @@
       const scope = urlParams.get('scope');
 
     	const map = L.map('map').setView([37.8, -96], 4);
+
+      let state = undefined;
+      if (undefined != scope) {
+        statesData.features.find((value, index) => {
+          if (scope == value.id) {
+
+            // add the scoped state to the map
+            state = L.geoJSON(value, {
+              style: function (feature) {
+                  return {
+                      fillOpacity: 0.00,
+                      weight: 0,
+                      color: '#000000'
+                  };
+              },
+              onEachFeature: function (feature, layer) {
+                  layer.on({
+                      'click': function (e) {
+                          e.target.setStyle({
+                              weight: 7,
+                              color: 'rgba(0,0,0,0)'
+                          });
+                      }
+                  });
+              }
+            });
+            state.addTo(map);
+            // focus on the state
+            map.fitBounds(state.getBounds());
+          }
+        });
+      }
     
     	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     		maxZoom: 19,

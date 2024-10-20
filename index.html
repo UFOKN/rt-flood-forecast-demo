@@ -195,7 +195,7 @@
     		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     	}).addTo(map);
     
-    	// control that shows state info on hover
+    	// control that shows state info on click
     	const info = L.control();
     
     	info.onAdd = function (map) {
@@ -210,7 +210,7 @@
           counties = props.counties.join('')
         }
         
-    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Hover over a state<br /><br />' + NAVIGATION;
+    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Click a state<br /><br />' + NAVIGATION;
     		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
     	};
     

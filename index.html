@@ -326,7 +326,7 @@
                 if (counties[state] == undefined) {
                   counties[state] = []
                 }
-                let county_link = '<a href="county.html?date='+datefile+'&scope='+fips+'">' + FIPS[fips] + '</a>'
+                let county_link = '<a href="county.html?date='+datefile+'&scope='+state+'">' + FIPS[fips] + '</a>'
                 counties[state].push({'fips': fips, 'label': county_link + ': ' + numberWithCommas(data[fips])})
               }
 

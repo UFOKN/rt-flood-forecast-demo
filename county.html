@@ -253,7 +253,7 @@
         }
 
         const back_link = '&laquo;<a href="index.html?date='+ datefile + '">back to CONUS</a>';
-    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}<br /><br />${back_link}` : '${NAVIGATION}<br /><br />Hover over a county<br/><br/>' + back_link;
+    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}${back_link}` : `${NAVIGATION}<br /><br />Hover over a county<br/><br/>` + back_link;
     		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
     	};
     

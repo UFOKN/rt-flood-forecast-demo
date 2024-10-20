@@ -413,8 +413,12 @@
     			for (let i = 0; i < grades.length; i++) {
     				from = grades[i];
     				to = grades[i + 1];
-    
-    				labels.push(`<i style="background:${getScaledColor(from + 1, grades)}"></i> ${numberWithCommas(from)}${to ? `&ndash;${numberWithCommas(to)}` : '+'}`);
+            if (0 == from) {
+              labels.push(`<i style="background:${getScaledColor(from + 1, grades)}"></i> ${numberWithCommas(from)}`);
+            }
+            else {
+    				  labels.push(`<i style="background:${getScaledColor(from + 1, grades)}"></i> ${numberWithCommas(from)}${to ? `&ndash;${numberWithCommas(to)}` : '+'}`);
+            }
     			}
     
     			div.innerHTML = labels.join('<br>');

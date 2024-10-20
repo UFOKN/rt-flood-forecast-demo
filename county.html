@@ -176,6 +176,7 @@
     
       const urlParams = new URLSearchParams(window.location.search);
       const datefile = urlParams.get('date');
+      const scope = urlParams.get('scope');
       
       const DATE_LABEL = formatDateFromFile(datefile)
       const DATEOBJ = getDateObjFromFile(datefile)
@@ -189,7 +190,7 @@
       const NEXT = getLink(NEXT_HOUR, scope, ' hour >') + " " + getLink(NEXT_DAY, scope, ' day >>')
       const NAVIGATION = PREV + " || " + NEXT
 
-      const scope = urlParams.get('scope');
+
 
     	let centroid = [37.8, -96]
       let init_zoom = 4

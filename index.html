@@ -260,8 +260,6 @@
     		});
     
     		layer.bringToFront();
-    
-    		info.update(layer.feature.properties, layer._map.properties.title);
     	}
     
     	let max_impacts = 1000;
@@ -366,17 +364,24 @@
     
     	function resetHighlight(e) {
     		geojson.resetStyle(e.target);
-    		info.update(undefined, DATE_LABEL);
     	}
+
+      function setInfo(e) {
+        const layer = e.target;
+        info.update(layer.feature.properties, layer._map.properties.title);
+      }
+      function resetInfo(e) {
+        info.update(undefined, DATE_LABEL);
+      }
     
     	function zoomToFeature(e) {
-        highlightFeature(e)
+        setInfo(e)
     		map.fitBounds(e.target.getBounds());
     	}
     
     	function onEachFeature(feature, layer) {
     		layer.on({
-    			//mouseover: highlightFeature,
+    			mouseover: highlightFeature,
     			mouseout: resetHighlight,
     			click: zoomToFeature
     		});

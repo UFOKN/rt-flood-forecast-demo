@@ -200,18 +200,18 @@
     
     	info.onAdd = function (map) {
     		this._div = L.DomUtil.create('div', 'info');
-    		this.update(undefined, DATE_LABEL);
+    		this.update();
     		return this._div;
     	};
     
-    	info.update = function (props, title) {
+    	info.update = function (id, props) {
         let counties = ''
         if (props && props.counties != undefined && props.counties != '') {
           counties = props.counties.join('')
         }
         
-    		const contents = props ? `${NAVIGATION}<br /><br /><b>${props.name}</b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Click a state<br /><br />' + NAVIGATION;
-    		this._div.innerHTML = `<h4>${title}</h4>${contents}`;
+    		const contents = props ? `${NAVIGATION}<br /><br /><b><a href="county.html?date=${datefile}&scope=${id}">${props.name}</a></b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Click a state<br /><br />' + NAVIGATION;
+    		this._div.innerHTML = `<h4>${DATE_LABEL}</h4>${contents}`;
     	};
     
     	info.addTo(map);
@@ -368,10 +368,10 @@
 
       function setInfo(e) {
         const layer = e.target;
-        info.update(layer.feature.properties, layer._map.properties.title);
+        info.update(layer.feature.id, layer.feature.properties);
       }
       function resetInfo(e) {
-        info.update(undefined, DATE_LABEL);
+        info.update();
       }
     
     	function zoomToFeature(e) {

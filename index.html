@@ -98,7 +98,6 @@
       function sortObjectByValues(obj) {
         // Convert the object into an array of key-value pairs
         const entries = Object.entries(obj);
-        console.log(entries);
 
         // Sort the array based on the values
         entries.sort((a, b) => b[1] - a[1]); 
@@ -108,7 +107,6 @@
         entries.forEach(([key, value]) => {
           sortedFips.push(key);
         });
-        console.log('Sorted FIPs: ', sortedFips);
         return sortedFips;
       }
       function drawChart(myData, label){
@@ -282,10 +280,8 @@
         .then((response) => response.json())
         .then((data) => {
           sorted = sortObjectByValues(data['impacts'])
-          console.log('impacts: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
-            console.log(fips, data[fips])
     				myData[fips] = data['impacts'][fips]
             var state = fips + "000"
             if (FIPS[state] != undefined) {
@@ -293,8 +289,8 @@
             }
           }
 
-          console.log('map: ', myData)
-          console.log('chart: ', chartData)
+          //console.log('map: ', myData)
+          //console.log('chart: ', chartData)
 
           drawChart(chartData, DATE_LABEL)
 

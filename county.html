@@ -323,11 +323,10 @@
       let geojson = fetch(countyReq)
         .then((response) => response.json())
         .then((data) => {
+          console.log(data['impacts'])
           sorted = sortObjectByValues(data['impacts'])
-          //console.log('Sorted: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
-            //console.log(fips, data['impacts'][fips])
     				myData[fips] = data['impacts'][fips]
             if (FIPS[fips] != undefined) {
               chartData[FIPS[fips]] = data['impacts'][fips]

@@ -107,7 +107,6 @@
           
           sortedFips.push(key);
         });
-        //console.log('Sorted: ', sortedFips);
         return sortedFips;
       }
       function drawChart(myData, label){
@@ -323,7 +322,6 @@
       let geojson = fetch(countyReq)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data['impacts'])
           sorted = sortObjectByValues(data['impacts'])
           for (const idx in sorted) {
             fips = sorted[idx]
@@ -333,8 +331,8 @@
             }
           }
 
-          console.log('map: ', myData)
-          console.log('chart: ', chartData)
+          //console.log('map: ', myData)
+          //console.log('chart: ', chartData)
 
           drawChart(chartData, DATE_LABEL)
 

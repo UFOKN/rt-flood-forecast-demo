@@ -318,7 +318,7 @@
     	let myData = {}
       let chartData = {}
 
-      const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=county&scope='+scope+'&date='+datefile);
+      const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/v0/impacts?fips=county&scope='+scope+'&date='+datefile);
 
       let geojson = fetch(countyReq)
         .then((response) => response.json())

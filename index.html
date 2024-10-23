@@ -282,6 +282,7 @@
         .then((response) => response.json())
         .then((data) => {
           sorted = sortObjectByValues(data['impacts'])
+          console.log('impacts: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
             //console.log(fips, data[fips])
@@ -292,8 +293,8 @@
             }
           }
 
-          //console.log('map: ', myData)
-          //console.log('chart: ', chartData)
+          console.log('map: ', myData)
+          console.log('chart: ', chartData)
 
           drawChart(chartData, DATE_LABEL)
 

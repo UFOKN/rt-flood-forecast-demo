@@ -285,11 +285,11 @@
           console.log('impacts: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
-            //console.log(fips, data[fips])
-    				myData[fips] = data[fips]
+            console.log(fips, data[fips])
+    				myData[fips] = data['impacts'][fips]
             var state = fips + "000"
             if (FIPS[state] != undefined) {
-              chartData[FIPS[state]] = data[fips]
+              chartData[FIPS[state]] = data['impacts'][fips]
             }
           }
 
@@ -327,7 +327,7 @@
                 if (counties[state] == undefined) {
                   counties[state] = []
                 }
-                counties[state].push({'fips': fips, 'label': FIPS[fips] + ': ' + numberWithCommas(data[fips])})
+                counties[state].push({'fips': fips, 'label': FIPS[fips] + ': ' + numberWithCommas(data['impacts'][fips])})
               }
 
               for (let state of statesData.features) {

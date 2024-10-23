@@ -281,9 +281,7 @@
       let geojson = fetch(statesReq)
         .then((response) => response.json())
         .then((data) => {
-          console.log('Pre-Sorted: ', data['impacts'])
           sorted = sortObjectByValues(data['impacts'])
-          console.log('Sorted: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
             //console.log(fips, data[fips])
@@ -316,11 +314,11 @@
           setLegend(increment)
 
           // Get Counties
-          const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=county&date='+datefile);
+          const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/v0/impacts?fips=county&date='+datefile);
           fetch(countyReq)
             .then((response) => response.json())
             .then((data) => { 
-              sorted = sortObjectByValues(data)
+              sorted = sortObjectByValues(data['impacts'])
               for (const idx in sorted) {
                 fips = sorted[idx]
                 state = JSON.stringify(fips.substring(0, 2))

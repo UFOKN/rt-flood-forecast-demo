@@ -271,7 +271,7 @@
         'title': 'CONUS Impacts - ' + DATE_LABEL
       }
 
-      let states = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/?fips=state&date='+datefile)
+      let states = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/v0/impacts?fips=state&date='+datefile)
       let counties = {}
     	let myData = {}
       let chartData = {}
@@ -281,8 +281,9 @@
       let geojson = fetch(statesReq)
         .then((response) => response.json())
         .then((data) => {
-          sorted = sortObjectByValues(data)
-          //console.log('Sorted: ', sorted)
+          console.log('Pre-Sorted: ', data['impacts'])
+          sorted = sortObjectByValues(data['impacts'])
+          console.log('Sorted: ', sorted)
           for (const idx in sorted) {
             fips = sorted[idx]
             //console.log(fips, data[fips])

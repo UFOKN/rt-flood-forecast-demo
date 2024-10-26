@@ -7,27 +7,12 @@
   	
   	<title>UFOKN - CONUS Map Demo</title>
   	  
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      
-      <style>
-        html, body {
-          height: 100%;
-          margin: 0;
-        }
-        .leaflet-container {
-          height: 400px;
-          width: 600px;
-          max-width: 100%;
-          max-height: 100%;
-        }
-      </style>
-    
-      <style>#map { width: 90%; height: 500px; }
-    .info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
-    .legend { text-align: left; line-height: 18px; color: #555; } .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }</style>
-    </head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="styles.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  </head>
   <body>
   
     <div id='map'></div>
@@ -36,140 +21,7 @@
     
     <script type="text/javascript" src="./us-states.js"></script>
     <script type="text/javascript" src="./fips.js"></script>
-    <script type="text/javascript">
-      function numberWithCommas(x) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      }
-      function getFileFromDate(date, hour) {
-        let year = JSON.stringify(date.getYear()+1900)
-        let month = date.getMonth()+1
-        if (month < 10) {
-          month = "0" + JSON.stringify(month)
-        }
-        else {
-          month = JSON.stringify(month)
-        }
-        let day = date.getDate()
-        if (day < 10) {
-          day = "0" + JSON.stringify(day)
-        }
-        else {
-          day = JSON.stringify(day)
-        }
-        let hour_string = (typeof hour == "string") ? hour : JSON.stringify(hour);
-        if (1 == hour_string.length) {
-          hour_string = "0" + hour_string;
-        }
-        return year + month + day + hour_string;
-      }
-      function getHourFromFile(datefile) {
-        return datefile.substring(8,10)
-      }
-      function getDateFromFile(datefile) {
-        return {
-          'year': datefile.substring(0,4),
-          'month': datefile.substring(4,6) - 1,
-          'day': datefile.substring(6,8),
-          'hour': getHourFromFile(datefile),
-        }
-      }
-      function getDateObjFromFile(datefile) {
-        let parts = getDateFromFile(datefile)
-        return new Date(parts['year'], parts['month'], parts['day']);  
-      }
-
-      function formatDateFromFile(datefile) {
-
-        const date = getDateObjFromFile(datefile); 
-        const hour =  getHourFromFile(datefile)
-        const month = date.getMonth() + 1
-        const year = date.getYear() + 1900
-        const day = date.getDate()
-
-        // Get the month name from the Date object
-        const monthName = date.toLocaleString('default', { month: 'long' });
-
-        
-    
-        // Return the formatted string
-        return `${monthName} ${day}, ${year} ${hour}:00 GMT`;
-      }
-      function sortObjectByValues(obj) {
-        // Convert the object into an array of key-value pairs
-        const entries = Object.entries(obj);
-
-        // Sort the array based on the values
-        entries.sort((a, b) => b[1] - a[1]); 
-
-        // Create a new object from the sorted array
-        const sortedFips = [];
-        entries.forEach(([key, value]) => {
-          sortedFips.push(key);
-        });
-        return sortedFips;
-      }
-      function drawChart(myData, label){
-        const ctx = document.getElementById('myChart');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Object.keys(myData),
-            datasets: [{
-              label: '# of Impacts',
-              data: Object.values(myData),
-              borderWidth: 1
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            // Elements options apply to all of the options unless overridden in a dataset
-            // In this case, we are setting the border of each horizontal bar to be 2px wide
-            elements: {
-              bar: {
-                borderWidth: 2,
-              }
-            },
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'right',
-              },
-              title: {
-                display: true,
-                text: 'Impacts - ' + label,
-              }
-            }
-          }
-        });
-      }
-
-      function getPreviousDay(date, hour) {
-        let prev = new Date(date.getTime());
-        prev.setDate(date.getDate() - 1);
-        return getFileFromDate(prev, hour)
-      }
-      function getPreviousHour(date, hour) {
-        if (hour == "00") {
-          return getPreviousDay(date, 23)
-        }
-        return getFileFromDate(date, parseInt(hour)-1)
-      }
-      function getNextDay(date, hour) {
-        let next = new Date(date.getTime());
-        next.setDate(date.getDate() + 1);
-        return getFileFromDate(next, hour)
-      }
-      function getNextHour(date, hour) {
-        if (hour == "23") {
-          return getNextDay(date, "00")
-        }
-        return getFileFromDate(date, parseInt(hour)+1)
-      }
-      function getLink(d, text) {
-        let url = location.protocol + '//' + location.host + location.pathname + '?date=' + d
-        return `<a href="${url}">${text}</a>`;
-      }
-    </script>
+    <script type="text/javascript" src="./utils.js"></script>
     <script type="text/javascript">
     
       const urlParams = new URLSearchParams(window.location.search);
@@ -181,17 +33,17 @@
 
       const PREV_DAY = getPreviousDay(DATEOBJ, HOUR)
       const PREV_HOUR = getPreviousHour(DATEOBJ, HOUR)
-      const PREV = getLink(PREV_DAY, '<< day') + " " + getLink(PREV_HOUR, '< hour')
+      const PREV = getLink('<< day', PREV_DAY) + " " + getLink('< hour', PREV_HOUR)
       const NEXT_DAY = getNextDay(DATEOBJ, HOUR)
       const NEXT_HOUR = getNextHour(DATEOBJ, HOUR)
-      const NEXT = getLink(NEXT_HOUR, ' hour >') + " " + getLink(NEXT_DAY, ' day >>')
+      const NEXT = getLink(' hour >', NEXT_HOUR) + " " + getLink(' day >>', NEXT_DAY)
       const NAVIGATION = PREV + " || " + NEXT
       
     	const map = L.map('map').setView([37.8, -96], 4);
     
-    	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    	const tiles = L.tileLayer(TILE_LAYER, {
     		maxZoom: 19,
-    		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    		attribution: MAP_ATTRIBUTION
     	}).addTo(map);
     
     	// control that shows state info on click
@@ -268,7 +120,7 @@
         'title': 'CONUS Impacts - ' + DATE_LABEL
       }
 
-      let states = ('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/v0/impacts?fips=state&date='+datefile)
+      let states = (API_ENDPOINT + '?fips=state&date='+datefile)
       let counties = {}
     	let myData = {}
       let chartData = {}
@@ -310,7 +162,7 @@
           setLegend(increment)
 
           // Get Counties
-          const countyReq = new Request('https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-east-1.on.aws/v0/impacts?fips=county&date='+datefile);
+          const countyReq = new Request(API_ENDPOINT + '?fips=county&date='+datefile);
           fetch(countyReq)
             .then((response) => response.json())
             .then((data) => { 
@@ -383,7 +235,7 @@
     		});
     	}
     
-    	map.attributionControl.addAttribution('Flooding data &copy; <a href="https://ufokn.org">UFOKN</a>');
+    	map.attributionControl.addAttribution(MAP_ATTRIBUTION_PROVIDER);
     
     
     	function setLegend(increment) {

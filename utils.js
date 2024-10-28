@@ -137,7 +137,7 @@ function getNextHour(date, hour) {
 function getLink(text, d, s) {
   let url = location.protocol + '//' + location.host + location.pathname + '?date=' + d
   if (undefined != s) {
-    url = url +  + '&scope=' + s
+    url = url + '&scope=' + s
   }
   return `<a href="${url}">${text}</a>`;
 }

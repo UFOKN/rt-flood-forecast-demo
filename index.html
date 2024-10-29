@@ -25,19 +25,48 @@
     <script type="text/javascript">
     
       const urlParams = new URLSearchParams(window.location.search);
-      const datefile = urlParams.get('date');
+      let datefile = urlParams.get('date') || undefined;
+      let FEATURE_TYPE = urlParams.get('feature-type') || undefined;
       
-      const DATE_LABEL = formatDateFromFile(datefile)
-      const DATEOBJ = getDateObjFromFile(datefile)
-      const HOUR =  getHourFromFile(datefile)
+      let DATE_LABEL = formatDateFromFile(datefile)
+      
+      function getNavigation(datefile, feature_type = undefined) {
+        let DATEOBJ = getDateObjFromFile(datefile)
+        let HOUR =  getHourFromFile(datefile)
+        let PREV_DAY = getPreviousDay(DATEOBJ, HOUR)
+        let PREV_HOUR = getPreviousHour(DATEOBJ, HOUR)
 
-      const PREV_DAY = getPreviousDay(DATEOBJ, HOUR)
-      const PREV_HOUR = getPreviousHour(DATEOBJ, HOUR)
-      const PREV = getLink('<< day', PREV_DAY) + " " + getLink('< hour', PREV_HOUR)
-      const NEXT_DAY = getNextDay(DATEOBJ, HOUR)
-      const NEXT_HOUR = getNextHour(DATEOBJ, HOUR)
-      const NEXT = getLink(' hour >', NEXT_HOUR) + " " + getLink(' day >>', NEXT_DAY)
-      const NAVIGATION = PREV + " || " + NEXT
+        let query_string = '';
+        if (feature_type != undefined) {
+          query_string += 'feature-type=' + feature_type;
+        }
+        let PREV = getLink('<< day', PREV_DAY, query_string) + " " + getLink('< hour', PREV_HOUR, query_string)
+        let NEXT_DAY = getNextDay(DATEOBJ, HOUR)
+        let NEXT_HOUR = getNextHour(DATEOBJ, HOUR)
+        let NEXT = getLink(' hour >', NEXT_HOUR, query_string) + " " + getLink(' day >>', NEXT_DAY, query_string)
+
+        let FEATURES = 'Features: '
+        let all_link = getLink('all', datefile)
+        let bldg_link = getLink('buildings', datefile, 'feature-type=building')
+        let ust_link =  getLink('ust', datefile, 'feature-type=ust')
+        let power_link = getLink('power stations', datefile, 'feature-type=power')
+        if (feature_type == 'building') {
+          FEATURES += all_link + ' | <strong>buildings</strong> | ' + ust_link + ' | ' + power_link
+        } else if (feature_type == 'ust') {
+          FEATURES += all_link + ' | ' + bldg_link + ' | <strong>ust</strong> | ' + power_link
+        } else if (feature_type == 'power') {
+          FEATURES += all_link + ' | ' + bldg_link + ' | ' + ust_link + ' | <strong>power stations</strong>'
+        } else {
+          FEATURES += '<strong>all</strong> | ' + bldg_link + ' | ' + ust_link+ ' | ' + power_link
+        }
+        return FEATURES + '<br/><br/>' + PREV + " || " + NEXT;
+      }
+
+
+      let NAVIGATION = ''
+      if (datefile != undefined) {
+        NAVIGATION = getNavigation(datefile, FEATURE_TYPE)
+      }
       
     	const map = L.map('map').setView([37.8, -96], 4);
     
@@ -60,8 +89,11 @@
         if (props && props.counties != undefined && props.counties != '') {
           counties = props.counties.join('')
         }
-        
-    		const contents = props ? `${NAVIGATION}<br /><br /><b><a href="county.html?date=${datefile}&scope=${id}">${props.name}</a></b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Click a state<br /><br />' + NAVIGATION;
+        let query = ''
+        if (FEATURE_TYPE != undefined) {
+          query += '&feature-type=' + FEATURE_TYPE
+        }
+    		const contents = props ? `${NAVIGATION}<br /><br /><b><a href="county.html?date=${datefile}&scope=${id}${query}">${props.name}</a></b><br />${numberWithCommas(props.count)} impacts<br /><br />${counties}` : 'Click a state<br /><br />' + NAVIGATION;
     		this._div.innerHTML = `<h4>${DATE_LABEL}</h4>${contents}`;
     	};
     
@@ -120,16 +152,33 @@
         'title': 'CONUS Impacts - ' + DATE_LABEL
       }
 
-      let states = (API_ENDPOINT + '?fips=state&date='+datefile)
+      let states_api_url = API_ENDPOINT+'?fips=state'
+      let counties_api_url = API_ENDPOINT+'?fips=county'
+      if (datefile != undefined) {
+        states_api_url += '&date=' + datefile;
+        counties_api_url += '&date=' + datefile;
+      }
+      if (FEATURE_TYPE != undefined) {
+        states_api_url += '&feature-type=' + FEATURE_TYPE;
+        counties_api_url += '&feature-type=' + FEATURE_TYPE;
+      }
       let counties = {}
     	let myData = {}
       let chartData = {}
 
-      const statesReq = new Request(states);
+      const statesReq = new Request(states_api_url);
 
       let geojson = fetch(statesReq)
         .then((response) => response.json())
         .then((data) => {
+
+          if (datefile == undefined) {
+            datefile = getFileFromDateParts(data['request']['date'])
+            DATE_LABEL = formatDateFromFile(datefile)
+            NAVIGATION = getNavigation(datefile, FEATURE_TYPE)
+            info.update();
+          }
+
           sorted = sortObjectByValues(data['impacts'])
           for (const idx in sorted) {
             fips = sorted[idx]
@@ -162,7 +211,7 @@
           setLegend(increment)
 
           // Get Counties
-          const countyReq = new Request(API_ENDPOINT + '?fips=county&date='+datefile);
+          const countyReq = new Request(counties_api_url);
           fetch(countyReq)
             .then((response) => response.json())
             .then((data) => { 

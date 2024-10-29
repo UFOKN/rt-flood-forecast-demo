@@ -6,6 +6,10 @@ const API_ENDPOINT = 'https://2jla2kob4zasgzwg3auuhxoona0jkbdm.lambda-url.us-eas
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+function getFileFromDateParts(date_parts) {
+  return date_parts['year'] + date_parts['month'] + date_parts['day'] + date_parts['hour'];
+}
 function getFileFromDate(date, hour) {
   let year = JSON.stringify(date.getYear()+1900)
   let month = date.getMonth()+1
@@ -134,10 +138,10 @@ function getNextHour(date, hour) {
   }
   return getFileFromDate(date, parseInt(hour)+1)
 }
-function getLink(text, d, s) {
+function getLink(text, d, query_string = '') {
   let url = location.protocol + '//' + location.host + location.pathname + '?date=' + d
-  if (undefined != s) {
-    url = url + '&scope=' + s
+  if (query_string.length > 0) {
+    url = url + '&' + query_string
   }
   return `<a href="${url}">${text}</a>`;
 }

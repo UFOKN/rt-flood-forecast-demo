@@ -25,6 +25,8 @@ jobs:
             
             View it here: ${{ github.event_name == 'release' && github.event.release.html_url || github.event.ref }}
             
+            https://ufokn.github.io/rt-flood-forecast-demo/index.html
+
             Created by: ${{ github.actor }}
           from: ${{ secrets.FROM_EMAIL }}
           to: ${{ secrets.TO_EMAIL }}

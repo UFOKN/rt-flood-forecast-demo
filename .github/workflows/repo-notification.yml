@@ -19,10 +19,11 @@ jobs:
             A new ${{ github.event_name == 'release' && 'release' || 'tag' }} has been created in the repository ${{ github.repository }}
             
             ${{ github.event_name == 'release' && format('Release name: {0}', github.event.release.name) || format('Tag: {0}', github.ref_name) }}
-            
             View it here: ${{ github.event_name == 'release' && github.event.release.html_url || github.event.ref }}
             
             https://ufokn.github.io/rt-flood-forecast-demo/index.html
+
+            Release notes: ${{ github.event.release.body }}
 
             Created by: ${{ github.actor }}
           from: ${{ secrets.FROM_EMAIL }}

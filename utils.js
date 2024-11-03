@@ -83,7 +83,7 @@ function sortObjectByValues(obj) {
 }
 function drawChart(myData, label){
   const ctx = document.getElementById('myChart');
-  new Chart(ctx, {
+  const dataChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: Object.keys(myData),
@@ -110,6 +110,35 @@ function drawChart(myData, label){
         title: {
           display: true,
           text: 'Impacts - ' + label,
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'y',
+            onPanComplete({ chart }) {
+              chart.update('none');
+            }
+          },
+          zoom: {
+            wheel: { enabled: true },
+            pinch: { enabled: true },
+            mode: 'y',
+            onZoomComplete({ chart }) {
+              chart.update('none');
+            }
+          }
+        },
+        onClick: (event) => {
+          const points = dataChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+          if (points.length) {
+            const clickedIndex = points[0].index;
+            const assignee = labels[clickedIndex];
+            dataChart.zoomScale('y', { min: clickedIndex - 0.5, max: clickedIndex + 0.5 });
+
+            // Display stats for the selected assignee
+            //const assigneeStats = statuses.map((status, i) => `<span style="color: #4ca6b8"><strong>${status}</strong>: ${data[status][clickedIndex] || 0}</span>`).join('<br>');
+            //document.getElementById('assigneeStats').innerHTML = `<h3>${assignee}</h3>${assigneeStats}`;
+          }
         }
       }
     }

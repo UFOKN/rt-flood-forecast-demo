@@ -1,0 +1,31 @@
+name: RT Flood Forecast Demo Notification
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - '*'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: New ${{ github.event_name == 'release' && 'release' || 'tag' }} created for ${{ github.repository }}
+          body: |
+            A new ${{ github.event_name == 'release' && 'release' || 'tag' }} has been created in the repository ${{ github.repository }}
+            
+            ${{ github.event_name == 'release' && format('Release name: {0}', github.event.release.name) || format('Tag: {0}', github.ref_name) }}
+            
+            View it here: ${{ github.event_name == 'release' && github.event.release.html_url || github.event.ref }}
+            
+            Created by: ${{ github.actor }}
+          from: ${{ secrets.FROM_EMAIL }}
+          to: ${{ secrets.TO_EMAIL }}
+          secure: true
